@@ -220,7 +220,7 @@ export function BriefForm() {
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-[var(--foreground)]">成果物タイプ（必須）</label>
                                     <select
-                                        className="w-full h-12 px-3 rounded-xl border-transparent bg-[var(--input-background)] focus:ring-2 focus:ring-[var(--primary-blue)] text-[var(--foreground)]"
+                                        className="w-full h-12 px-3 rounded-xl border-transparent bg-[var(--input-background)] focus:ring-2 focus:ring-[var(--primary-blue)] text-[var(--foreground)] text-base"
                                         {...register('deliverable_type', { required: '成果物は必須です' })}
                                     >
                                         <option value="">選択してください</option>
