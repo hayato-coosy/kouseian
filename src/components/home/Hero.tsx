@@ -50,7 +50,7 @@ export function Hero() {
                                 「新商品のLP作りたいです。<br />
                                 ターゲットは30代女性。<br />
                                 おしゃれな感じでお願いします。<br />
-                                納期はなる早で！」
+                                納期はなる早で」
                             </div>
                             <p className="mt-4 text-xs text-gray-400 font-medium">
                                 ・ ニュアンスが伝わりにくい<br />
