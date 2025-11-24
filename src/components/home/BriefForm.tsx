@@ -1,78 +1,128 @@
 'use client';
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { Save, Sparkles, HelpCircle, AlertCircle } from 'lucide-react';
 
 export type BriefFormData = {
+    // Basic Info
+    request_text: string;
     title: string;
     client_name?: string;
     deliverable_type: string;
     deliverable_type_other?: string;
+
+    // Dynamic fields
+    banner_size?: string;
+    lp_page_count?: string;
+    app_os?: string;
+    sns_format?: string;
+    website_pages?: string;
+
     due_date?: string;
-    priority?: 'high' | 'medium' | 'low';
+
     background: string;
     problem: string;
     goal: string;
     elements: string;
-    target_user?: string;
-    business_goal?: string;
-    channels?: string;
+
+    // Detailed Info
+    target_user_tags?: string[];
+    target_user_text?: string;
+    business_goal_tags?: string[];
+    business_goal_text?: string;
+    channels?: string[];
+    tone_tags?: string[];
     tone_keywords?: string;
     reference_urls?: string;
     ng_examples?: string;
     constraints?: string;
 };
 
+const DELIVERABLE_TYPES = [
+    'Webサイト', 'LP', 'バナー', 'バナー大量制作', 'アプリUI',
+    'プレゼン資料', 'ロゴ', 'SNS画像（Instagram/X）', '印刷物（パンフ・チラシ）', '採用資料', 'その他'
+];
+
+const TARGET_TAGS = [
+    '一般消費者', 'BtoB', '経営層', '20代〜30代', '40代以上',
+    '既存顧客', '新規顧客', '学生', '採用候補者', '女性向け', '男性向け'
+];
+
+const CHANNEL_OPTIONS = [
+    '広告（Google / Meta）', 'SEO', 'SNS（Instagram/X/TikTok）',
+    'メール / メルマガ', '比較サイト', 'イベント', 'オフライン（紙媒体）'
+];
+
+const TONE_TAGS = [
+    'シンプル', 'ミニマル', '上品', '親しみ',
+    'テック', 'コーポレート', 'ラグジュアリー',
+    '女性向け', '男性向け', 'カジュアル', 'モダン'
+];
+
+const STORAGE_KEY = 'brief_form_draft';
+
 export function BriefForm() {
     const router = useRouter();
-    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
-    const { register, handleSubmit, watch, formState: { errors } } = useForm<BriefFormData>();
+    const { register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm<BriefFormData>({
+        defaultValues: {
+            tone_tags: [],
+            target_user_tags: [],
+            channels: []
+        }
+    });
+
+    const formData = watch();
     const deliverableType = watch('deliverable_type');
+    const toneTags = watch('tone_tags') || [];
+    const targetTags = watch('target_user_tags') || [];
+    const channels = watch('channels') || [];
 
-    // Dynamic placeholders based on deliverable type
-    const getPlaceholders = (type: string) => {
-        switch (type) {
-            case 'LP':
-                return {
-                    background: '例）新サービスの認知拡大のために、LPを作成したいです。12月リリース予定です。',
-                    problem: '例）今は既存サイトの1ページで説明しており、サービスの特徴が十分に伝わっていません。',
-                    goal: '例）まずは資料請求数と無料トライアル申込数を増やしたいです。',
-                    elements: '例）\n・ターゲットは20〜30代の会社員\n・料金プラン表\n・導入企業ロゴ\n・よくある質問（FAQ）'
-                };
-            case 'バナー':
-                return {
-                    background: '例）年末セールの集客強化のため、バナーを作成したいです。',
-                    problem: '例）クリック率が低下しているため、新しい訴求を試したいです。',
-                    goal: '例）セール特設ページへの誘導数を最大化したいです。',
-                    elements: '例）\n・「最大50%OFF」の文字を目立たせる\n・商品Aの写真を使用\n・サイズ：1200x630, 1080x1080\n・掲載面：Instagram広告, GDN'
-                };
-            case 'プレゼン資料':
-                return {
-                    background: '例）来週の経営会議で、新プロジェクトの承認を得るための資料が必要です。',
-                    problem: '例）プロジェクトの意義と収益性が伝わりにくい点。',
-                    goal: '例）予算の承認を得ること。',
-                    elements: '例）\n・市場規模のデータ\n・競合他社との比較表\n・3年間の収支計画\n・想定ページ数：10ページ程度\n・発表時間：15分'
-                };
-            default:
-                return {
-                    background: '例）新サービスの認知拡大のために、LPを作成したいです。12月リリース予定です。',
-                    problem: '例）今は既存サイトの1ページで説明しており、サービスの特徴が十分に伝わっていません。',
-                    goal: '例）まずは資料請求数と無料トライアル申込数を増やしたいです。',
-                    elements: '例）\n・ターゲットは20〜30代の会社員\n・料金プラン表\n・導入企業ロゴ\n・よくある質問（FAQ）'
-                };
+    // Load from LocalStorage on mount
+    useEffect(() => {
+        const savedData = localStorage.getItem(STORAGE_KEY);
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                reset(parsed);
+            } catch (e) {
+                console.error('Failed to load draft', e);
+            }
+        }
+    }, [reset]);
+
+    // Save to LocalStorage
+    const saveDraft = () => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+        setSavedMessage('下書きを保存しました');
+        setTimeout(() => setSavedMessage(null), 3000);
+    };
+
+    const toggleTag = (field: 'tone_tags' | 'target_user_tags', tag: string) => {
+        const currentTags = field === 'tone_tags' ? toneTags : targetTags;
+        if (currentTags.includes(tag)) {
+            setValue(field, currentTags.filter(t => t !== tag));
+        } else {
+            setValue(field, [...currentTags, tag]);
         }
     };
 
-    const placeholders = getPlaceholders(deliverableType);
+    const toggleChannel = (channel: string) => {
+        if (channels.includes(channel)) {
+            setValue('channels', channels.filter(c => c !== channel));
+        } else {
+            setValue('channels', [...channels, channel]);
+        }
+    };
 
     const onSubmit = async (data: BriefFormData) => {
         setIsLoading(true);
@@ -91,7 +141,9 @@ export function BriefForm() {
 
             const result = await response.json();
 
-            // Store result in sessionStorage to pass to result page without URL limits
+            // Clear draft after successful generation
+            localStorage.removeItem(STORAGE_KEY);
+
             sessionStorage.setItem('briefResult', JSON.stringify(result));
             router.push('/result');
 
@@ -104,190 +156,302 @@ export function BriefForm() {
     };
 
     return (
-        <section id="brief-form" className="py-16 bg-white dark:bg-gray-950">
-            <div className="container mx-auto px-4 max-w-3xl">
-                <Card className="border-gray-200 shadow-xl shadow-gray-200/50 dark:border-gray-800 dark:shadow-none">
-                    <CardHeader className="bg-gray-50/50 border-b border-gray-100 pb-8 dark:bg-gray-900/50 dark:border-gray-800">
-                        <CardTitle className="text-2xl text-center dark:text-gray-50">デザインブリーフの元になる情報を入力してください</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-8">
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <section id="brief-form" className="py-12 bg-white dark:bg-gray-950">
+            <div className="container mx-auto px-4 max-w-4xl">
+                <Card className="border-gray-200 shadow-xl shadow-gray-200/50 dark:border-gray-800 dark:shadow-none relative overflow-visible">
+                    {/* Save Draft Button */}
+                    <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+                        {savedMessage && <span className="text-xs text-green-600 font-medium animate-fade-in">{savedMessage}</span>}
+                        <button
+                            onClick={saveDraft}
+                            type="button"
+                            className="p-2 text-gray-400 hover:text-blue-600 transition-colors bg-white/50 dark:bg-gray-900/50 rounded-full"
+                            title="下書きを保存"
+                        >
+                            <Save size={20} />
+                        </button>
+                    </div>
 
-                            {/* Essential Fields */}
-                            <div className="space-y-6">
-                                <div className="grid gap-6">
-                                    <Textarea
-                                        label="背景（必須）"
-                                        placeholder={placeholders.background}
-                                        className="min-h-[100px]"
-                                        {...register('background', { required: '背景は必須です' })}
-                                        error={errors.background?.message}
-                                    />
-                                    <Textarea
-                                        label="解決したい課題（必須）"
-                                        placeholder={placeholders.problem}
-                                        className="min-h-[100px]"
-                                        {...register('problem', { required: '課題は必須です' })}
-                                        error={errors.problem?.message}
-                                    />
-                                    <Textarea
-                                        label="今回の目的・ゴール（必須）"
-                                        placeholder={placeholders.goal}
-                                        className="min-h-[100px]"
-                                        {...register('goal', { required: '目的・ゴールは必須です' })}
-                                        error={errors.goal?.message}
-                                    />
-                                    <Textarea
-                                        label="入れてほしい要素（必須）"
-                                        placeholder={placeholders.elements}
-                                        className="min-h-[150px]"
-                                        {...register('elements', { required: '要素は必須です' })}
-                                        error={errors.elements?.message}
-                                    />
-                                </div>
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-12 p-6 md:p-10">
 
+                        {/* 1. Request Text (Hero / Intro) */}
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="bg-[var(--primary-blue)] text-white text-xs font-bold px-2 py-1 rounded-full">STEP 1</span>
+                                <h2 className="text-xl font-semibold text-[var(--foreground)]">依頼内容を入力</h2>
+                            </div>
+                            <p className="text-sm text-gray-500">
+                                Slackやメールの依頼文、または口頭で共有された内容をそのまま貼り付けてください。<br />
+                                箇条書きやメモ書きでも構いません。
+                            </p>
+                            <Textarea
+                                placeholder="例）新商品のプロテインのLPを作りたい。ターゲットは30代女性で、美容目的。トンマナはピンク系で可愛らしく。納期は来月末まで。"
+                                className="min-h-[150px] text-base leading-relaxed resize-none border-transparent bg-[var(--input-background)] focus:ring-2 focus:ring-[var(--primary-blue)] rounded-xl p-4"
+                                {...register('request_text')}
+                            />
+                        </div>
+
+                        <hr className="border-[var(--card-border)]" />
+
+                        {/* 2. Basic Info */}
+                        <div className="space-y-8">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="bg-[var(--primary-blue)] text-white text-xs font-bold px-2 py-1 rounded-full">STEP 2</span>
+                                <h2 className="text-xl font-semibold text-[var(--foreground)]">基本情報を整理</h2>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-6">
                                 <Input
                                     label="案件タイトル（必須）"
-                                    placeholder="例）新サービス「〇〇」LP制作"
+                                    placeholder="例）2025年春キャンペーンLP制作"
+                                    className="bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl h-12"
                                     {...register('title', { required: 'タイトルは必須です' })}
                                     error={errors.title?.message}
                                 />
+                                <Input
+                                    label="クライアント名"
+                                    placeholder="例）株式会社〇〇"
+                                    className="bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl h-12"
+                                    {...register('client_name')}
+                                />
+                            </div>
 
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <Input
-                                        label="クライアント / プロジェクト名"
-                                        placeholder="例）大手EC企業A / 〇〇プロジェクト"
-                                        {...register('client_name')}
-                                    />
-
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">成果物の種類（必須）</label>
-                                        <select
-                                            className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 dark:bg-gray-950 dark:border-gray-800 dark:text-gray-50 dark:focus-visible:ring-gray-300"
-                                            {...register('deliverable_type', { required: '成果物の種類を選択してください' })}
-                                        >
-                                            <option value="">選択してください</option>
-                                            <option value="Webサイト">Webサイト</option>
-                                            <option value="LP">LP</option>
-                                            <option value="バナー">バナー</option>
-                                            <option value="アプリUI">アプリUI</option>
-                                            <option value="プレゼン資料">プレゼン資料</option>
-                                            <option value="その他">その他</option>
-                                        </select>
-                                        {errors.deliverable_type && <p className="text-xs text-red-500 font-medium">{errors.deliverable_type.message}</p>}
-                                    </div>
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-[var(--foreground)]">成果物タイプ（必須）</label>
+                                    <select
+                                        className="w-full h-12 px-3 rounded-xl border-transparent bg-[var(--input-background)] focus:ring-2 focus:ring-[var(--primary-blue)] text-[var(--foreground)]"
+                                        {...register('deliverable_type', { required: '成果物は必須です' })}
+                                    >
+                                        <option value="">選択してください</option>
+                                        {DELIVERABLE_TYPES.map(type => (
+                                            <option key={type} value={type}>{type}</option>
+                                        ))}
+                                    </select>
+                                    {errors.deliverable_type && <p className="text-sm text-[var(--error-red)]">{errors.deliverable_type.message}</p>}
                                 </div>
 
+                                {/* Dynamic Fields based on Deliverable Type */}
                                 {deliverableType === 'その他' && (
                                     <Input
                                         label="その他の成果物"
-                                        placeholder="成果物を入力してください"
-                                        {...register('deliverable_type_other', { required: '成果物を入力してください' })}
-                                        error={errors.deliverable_type_other?.message}
+                                        placeholder="具体的に入力してください"
+                                        className="bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl h-12"
+                                        {...register('deliverable_type_other')}
                                     />
                                 )}
-
-                                <div className="grid md:grid-cols-2 gap-6">
+                                {(deliverableType === 'バナー' || deliverableType === 'バナー大量制作' || deliverableType === 'SNS画像（Instagram/X）') && (
                                     <Input
-                                        type="date"
-                                        label="希望納期"
-                                        {...register('due_date')}
+                                        label="サイズ / 枚数"
+                                        placeholder="例）1080x1080, 1200x630 / 計5枚"
+                                        className="bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl h-12"
+                                        {...register('banner_size')}
                                     />
+                                )}
+                                {deliverableType === 'LP' && (
+                                    <Input
+                                        label="想定ページ長 / 構成案"
+                                        placeholder="例）PCで10スクロール程度 / 構成案あり"
+                                        className="bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl h-12"
+                                        {...register('lp_page_count')}
+                                    />
+                                )}
+                                {deliverableType === 'アプリUI' && (
+                                    <Input
+                                        label="対応OS / 画面数"
+                                        placeholder="例）iOS, Android / 主要5画面"
+                                        className="bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl h-12"
+                                        {...register('app_os')}
+                                    />
+                                )}
+                                {deliverableType === 'Webサイト' && (
+                                    <Input
+                                        label="ページ数 / サイトマップ"
+                                        placeholder="例）TOP + 下層5ページ"
+                                        className="bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl h-12"
+                                        {...register('website_pages')}
+                                    />
+                                )}
+                            </div>
 
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">優先度</label>
-                                        <select
-                                            className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 dark:bg-gray-950 dark:border-gray-800 dark:text-gray-50 dark:focus-visible:ring-gray-300"
-                                            {...register('priority')}
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <Input
+                                    label="納期"
+                                    type="date"
+                                    className="bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl h-12"
+                                    {...register('due_date')}
+                                />
+                            </div>
+
+                            <div className="space-y-4">
+                                <Textarea
+                                    label="背景・目的（Why）"
+                                    placeholder="なぜこのプロジェクトを行うのか？現状の課題は？"
+                                    className="min-h-[100px] bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl p-4"
+                                    {...register('background', { required: '背景は必須です' })}
+                                    error={errors.background?.message}
+                                />
+                                <Textarea
+                                    label="解決したい課題（Problem）"
+                                    placeholder="ユーザーやクライアントが抱えている悩み"
+                                    className="min-h-[100px] bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl p-4"
+                                    {...register('problem', { required: '課題は必須です' })}
+                                    error={errors.problem?.message}
+                                />
+                                <Textarea
+                                    label="ゴール（Goal）"
+                                    placeholder="この制作物でどうなれば成功か？"
+                                    className="min-h-[100px] bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl p-4"
+                                    {...register('goal', { required: 'ゴールは必須です' })}
+                                    error={errors.goal?.message}
+                                />
+                                <Textarea
+                                    label="必須要素（Elements）"
+                                    placeholder="ロゴ、キャッチコピー、商品写真など、必ず入れるもの"
+                                    className="min-h-[100px] bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl p-4"
+                                    {...register('elements', { required: '必須要素は必須です' })}
+                                    error={errors.elements?.message}
+                                />
+                            </div>
+                        </div>
+
+                        <hr className="border-[var(--card-border)]" />
+
+                        {/* 3. Detailed Info */}
+                        <div className="space-y-8">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="bg-[var(--primary-blue)] text-white text-xs font-bold px-2 py-1 rounded-full">STEP 3</span>
+                                <h2 className="text-xl font-semibold text-[var(--foreground)]">詳細情報（任意）</h2>
+                            </div>
+
+                            {/* Target User */}
+                            <div className="space-y-3">
+                                <label className="text-sm font-medium text-[var(--foreground)]">ターゲットユーザー</label>
+                                <div className="flex flex-wrap gap-2 mb-2">
+                                    {TARGET_TAGS.map(tag => (
+                                        <button
+                                            key={tag}
+                                            type="button"
+                                            onClick={() => toggleTag('target_user_tags', tag)}
+                                            className={`px-3 py-1.5 rounded-full text-sm border transition-all ${targetTags.includes(tag)
+                                                ? 'bg-[var(--primary-blue)] border-[var(--primary-blue)] text-white shadow-sm'
+                                                : 'bg-[var(--background)] border-[var(--card-border)] text-gray-600 hover:border-[var(--primary-blue)]'
+                                                }`}
                                         >
-                                            <option value="">選択してください</option>
-                                            <option value="high">高</option>
-                                            <option value="medium">中</option>
-                                            <option value="low">低</option>
-                                        </select>
-                                    </div>
+                                            {tag}
+                                        </button>
+                                    ))}
+                                </div>
+                                <Input
+                                    placeholder="その他、具体的なターゲット像（例：都内在住の30代OL）"
+                                    className="bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl h-12"
+                                    {...register('target_user_text')}
+                                />
+                            </div>
+
+                            {/* Channels */}
+                            <div className="space-y-3">
+                                <label className="text-sm font-medium text-[var(--foreground)]">想定流入チャネル</label>
+                                <div className="flex flex-wrap gap-3">
+                                    {CHANNEL_OPTIONS.map(channel => (
+                                        <label key={channel} className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-[var(--background)] transition-colors">
+                                            <input
+                                                type="checkbox"
+                                                value={channel}
+                                                checked={channels.includes(channel)}
+                                                onChange={() => toggleChannel(channel)}
+                                                className="w-4 h-4 text-[var(--primary-blue)] rounded border-gray-300 focus:ring-[var(--primary-blue)]"
+                                            />
+                                            <span className="text-sm text-[var(--foreground)]">{channel}</span>
+                                        </label>
+                                    ))}
                                 </div>
                             </div>
 
-                            {/* Optional Details Toggle */}
-                            <div className="border-t border-gray-100 pt-6 dark:border-gray-800">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsDetailsOpen(!isDetailsOpen)}
-                                    className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors dark:text-gray-400 dark:hover:text-gray-200"
-                                >
-                                    <span>詳細な情報を追加する（任意）</span>
-                                    {isDetailsOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                                </button>
-
-                                {isDetailsOpen && (
-                                    <div className="mt-6 space-y-6 animate-in fade-in slide-in-from-top-2 duration-200">
-                                        <Textarea
-                                            label="ターゲットユーザー"
-                                            placeholder="例）20〜30代の会社員。オンラインでの申込みに慣れている層。"
-                                            {...register('target_user')}
-                                        />
-                                        <Textarea
-                                            label="ビジネスゴール / KPI"
-                                            placeholder="例）資料請求数、無料トライアル申込数 など"
-                                            {...register('business_goal')}
-                                        />
-                                        <Textarea
-                                            label="想定流入チャネル"
-                                            placeholder="例）リスティング広告 / SNS広告 / 既存顧客へのメール など"
-                                            {...register('channels')}
-                                        />
-                                        <Textarea
-                                            label="トーン＆マナー / ブランドキーワード"
-                                            placeholder="例）信頼感・安心感 / シンプル / かっこよすぎない など"
-                                            {...register('tone_keywords')}
-                                        />
-                                        <Textarea
-                                            label="参考サイト / 参考クリエイティブURL"
-                                            placeholder="例）https://example.com"
-                                            {...register('reference_urls')}
-                                        />
-                                        <Textarea
-                                            label="NG例 / 避けたいトーン"
-                                            placeholder="例）過度に派手な表現 / 安売り感が強いコピー など"
-                                            {...register('ng_examples')}
-                                        />
-                                        <Textarea
-                                            label="制約事項（法務・ブランドガイドラインなど）"
-                                            placeholder="例）ロゴの余白ルールを遵守 / 価格表記のルールあり など"
-                                            {...register('constraints')}
-                                        />
-                                    </div>
-                                )}
+                            {/* Business Goal */}
+                            <div className="space-y-3">
+                                <Input
+                                    label="ビジネスゴール / KPI"
+                                    placeholder="例）資料請求数 120%アップ、CPA 5,000円以下"
+                                    className="bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl h-12"
+                                    {...register('business_goal_text')}
+                                />
                             </div>
 
-                            {/* Error Message */}
+                            {/* Tone & Manner */}
+                            <div className="space-y-3">
+                                <label className="text-sm font-medium text-[var(--foreground)]">トーン＆マナー</label>
+                                <div className="flex flex-wrap gap-2 mb-2">
+                                    {TONE_TAGS.map(tag => (
+                                        <button
+                                            key={tag}
+                                            type="button"
+                                            onClick={() => toggleTag('tone_tags', tag)}
+                                            className={`px-3 py-1.5 rounded-full text-sm border transition-all ${toneTags.includes(tag)
+                                                ? 'bg-[var(--primary-blue)] border-[var(--primary-blue)] text-white shadow-sm'
+                                                : 'bg-[var(--background)] border-[var(--card-border)] text-gray-600 hover:border-[var(--primary-blue)]'
+                                                }`}
+                                        >
+                                            {tag}
+                                        </button>
+                                    ))}
+                                </div>
+                                <Input
+                                    placeholder="その他、具体的なキーワードやブランドイメージ"
+                                    className="bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl h-12"
+                                    {...register('tone_keywords')}
+                                />
+                            </div>
+
+                            <div className="grid gap-6">
+                                <Textarea
+                                    label="参考サイト / 参考クリエイティブURL"
+                                    placeholder="URLを改行区切りで入力"
+                                    className="min-h-[80px] bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl p-4"
+                                    {...register('reference_urls')}
+                                />
+                                <Textarea
+                                    label="NG例 / 避けたいトーン"
+                                    placeholder="避けてほしい色味や表現など"
+                                    className="min-h-[80px] bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl p-4"
+                                    {...register('ng_examples')}
+                                />
+                                <Textarea
+                                    label="制約事項（法務・ブランドガイドラインなど）"
+                                    placeholder="必ず守るべきルールがあれば入力"
+                                    className="min-h-[80px] bg-[var(--input-background)] border-transparent focus:ring-[var(--primary-blue)] rounded-xl p-4"
+                                    {...register('constraints')}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className="pt-4">
+                            <Button
+                                type="submit"
+                                className="w-full h-14 text-lg font-bold bg-[var(--primary-blue)] hover:opacity-90 shadow-lg shadow-blue-200/50 dark:shadow-none transition-all hover:scale-[1.01] rounded-full"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        <span>AIがブリーフを生成中...</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <Sparkles className="w-5 h-5" />
+                                        <span>AIでブリーフを作成する</span>
+                                    </div>
+                                )}
+                            </Button>
                             {error && (
-                                <div className="bg-red-50 text-red-600 p-4 rounded-lg flex items-center text-sm dark:bg-red-900/20 dark:text-red-400">
-                                    <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+                                <div className="mt-4 p-4 bg-red-50 text-[var(--error-red)] rounded-xl flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+                                    <AlertCircle className="w-5 h-5" />
                                     {error}
                                 </div>
                             )}
-
-                            {/* Submit Button */}
-                            <div className="pt-4">
-                                <Button
-                                    type="submit"
-                                    size="lg"
-                                    className="w-full text-lg h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/20"
-                                    isLoading={isLoading}
-                                >
-                                    AIでブリーフを作成する
-                                </Button>
-                            </div>
-
-                            <p className="text-xs text-center text-gray-400 mt-4 dark:text-gray-500">
-                                入力された内容は、ブリーフ生成のために一時的にGemini APIへ送信されます。<br />
-                                サーバー側では内容を保存せず、ログにもテキスト本⽂は記録しません。<br />
-                                個人情報や機密情報は入力しないでください。
-                            </p>
-                        </form>
-                    </CardContent>
+                        </div>
+                    </form>
                 </Card>
             </div>
         </section>

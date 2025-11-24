@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { FixedFooter } from "@/components/layout/FixedFooter";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -19,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 dark:text-gray-50`}>
+      <body className={`${inter.className} min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 dark:text-gray-50 pb-16`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -31,6 +32,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <FixedFooter />
         </ThemeProvider>
       </body>
     </html>

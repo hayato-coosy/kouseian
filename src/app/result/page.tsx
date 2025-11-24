@@ -3,13 +3,21 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BriefDisplay } from '@/components/result/BriefDisplay';
-import { MissingPointsDisplay } from '@/components/result/MissingPointsDisplay';
 import { Button } from '@/components/ui/Button';
 import { ArrowLeft } from 'lucide-react';
 
+interface Section {
+    title: string;
+    content: string;
+}
+
+interface BriefResult {
+    sections: Section[];
+}
+
 export default function ResultPage() {
     const router = useRouter();
-    const [data, setData] = useState<{ brief: string; missing_points: string[] } | null>(null);
+    const [data, setData] = useState<BriefResult | null>(null);
 
     useEffect(() => {
         const storedData = sessionStorage.getItem('briefResult');
@@ -34,8 +42,8 @@ export default function ResultPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 py-12">
-            <div className="mb-8">
+        <div className="container mx-auto px-4 py-12 max-w-5xl">
+            <div className="mb-8 print:hidden">
                 <Button variant="ghost" onClick={() => router.push('/')} className="mb-4 pl-0 hover:bg-transparent hover:text-blue-600 dark:hover:text-blue-400">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     トップに戻る
@@ -47,16 +55,11 @@ export default function ResultPage() {
                 </p>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-8 h-[calc(100vh-300px)] min-h-[600px]">
-                <div className="lg:col-span-2 h-full">
-                    <BriefDisplay brief={data.brief} />
-                </div>
-                <div className="lg:col-span-1 h-full">
-                    <MissingPointsDisplay points={data.missing_points} />
-                </div>
+            <div className="min-h-[600px] print:h-auto print:min-h-0">
+                <BriefDisplay sections={data.sections} />
             </div>
 
-            <div className="mt-8 text-center text-xs text-gray-400 dark:text-gray-500">
+            <div className="mt-8 text-center text-xs text-gray-400 dark:text-gray-500 print:hidden">
                 この画面に表示されている内容はブラウザ内でのみ保持され、サーバー側には保存されません。<br />
                 必要な内容は、Notionなどの正式なドキュメントにコピーして保管してください。
             </div>

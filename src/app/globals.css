@@ -1,18 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  /* Apple Light Mode */
+  --background: #F5F5F7;
+  --foreground: #1D1D1F;
+  --card-background: #FFFFFF;
+  --card-border: #D2D2D7;
+  --input-background: #F5F5F7;
+  --primary-blue: #0071E3;
+  --error-red: #FF3B30;
 }
 
 .dark {
-  --background: #020617;
-  --foreground: #f8fafc;
+  /* Apple Dark Mode */
+  --background: #000000;
+  --foreground: #F5F5F7;
+  --card-background: #1C1C1E;
+  --card-border: #424245;
+  --input-background: #2C2C2E;
+  --primary-blue: #2997FF;
+  --error-red: #FF453A;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card-background);
+  --color-card-border: var(--card-border);
+  --color-input: var(--input-background);
+  --color-primary: var(--primary-blue);
+  --color-error: var(--error-red);
 }
 
 /* Force dark variant to use class strategy */
@@ -21,4 +38,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
