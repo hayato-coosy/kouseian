@@ -2,43 +2,11 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-    const basicAuthUser = process.env.BASIC_AUTH_USER;
-    const basicAuthPassword = process.env.BASIC_AUTH_PASSWORD;
-
-    // Basic auth is disabled if credentials are not set
-    if (!basicAuthUser || !basicAuthPassword) {
-        return NextResponse.next();
-    }
-
-    const authHeader = request.headers.get('authorization');
-
-    if (!authHeader || !authHeader.startsWith('Basic ')) {
-        return new NextResponse('Authentication required', {
-            status: 401,
-            headers: {
-                'WWW-Authenticate': 'Basic realm="Secure Area"',
-            },
-        });
-    }
-
-    const base64Credentials = authHeader.split(' ')[1];
-    const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
-    const [username, password] = credentials.split(':');
-
-    if (username === basicAuthUser && password === basicAuthPassword) {
-        return NextResponse.next();
-    }
-
-    return new NextResponse('Invalid credentials', {
-        status: 401,
-        headers: {
-            'WWW-Authenticate': 'Basic realm="Secure Area"',
-        },
-    });
+    // Basic authentication removed – always allow the request
+    return NextResponse.next();
 }
 
 export const config = {
-    matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
-    ],
+    // Apply to all routes
+    matcher: ['/:path*'],
 };
