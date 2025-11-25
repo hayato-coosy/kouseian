@@ -85,31 +85,61 @@ ${request_text || 'なし'}
 ---
 
 ## 出力形式（JSON）
-以下の10セクション構成で、JSON形式で出力してください。
-各セクションは "title" と "content" を持ちます。
-"content" はMarkdown形式で記述してください。
+以下の構造でJSONを出力してください。
+Markdown形式の記述を含みます。
 
-JSONフォーマット:
-{
-  "sections": [
-    { "title": "1. プロジェクト概要", "content": "..." },
-    { "title": "2. 背景・目的", "content": "..." },
-    { "title": "3. 現状の課題", "content": "..." },
-    { "title": "4. ゴール・KPI", "content": "..." },
-    { "title": "5. ターゲット・チャネル", "content": "..." },
-    { "title": "6. 制作戦略・コンセプト", "content": "..." },
-    { "title": "7. 成果物要件・仕様", "content": "..." },
-    { "title": "8. トーン＆マナー", "content": "..." },
-    { "title": "9. 制約事項・スケジュール", "content": "..." },
-    { "title": "10. 確認事項・ネクストアクション", "content": "..." }
-  ]
-}
+\`\`\`json
+        {
+            "summary": {
+                "title": "プロジェクト名（魅力的でわかりやすいもの）",
+                    "client": "クライアント名",
+                        "type": "成果物タイプ",
+                            "deadline": "納期",
+                                "overview": "プロジェクトの概要を一言で（30文字程度）"
+            },
+            "details": {
+                "background": "背景・目的（Markdown）",
+                    "problem": "現状の課題（Markdown）",
+                        "goal": "ゴール（Markdown）",
+                            "elements": "必須要素（Markdown）",
+                                "target": "ターゲット（Markdown）",
+                                    "channel": "流入チャネル（Markdown）",
+                                        "kpi": "ビジネスゴール・KPI（Markdown）",
+                                            "tone": "トーン＆マナー（Markdown）",
+                                                "references": "参考URL・クリエイティブ（Markdown）",
+                                                    "ng_examples": "NG例（Markdown）",
+                                                        "constraints": "制約事項（Markdown）"
+            },
+            "actions": [
+                {
+                    "category": "制作チーム TODO",
+                    "label": "制作",
+                    "color": "blue",
+                    "items": ["TODO項目1", "TODO項目2"]
+                },
+                {
+                    "category": "クライアント確認",
+                    "label": "確認",
+                    "color": "orange",
+                    "items": ["確認項目1", "確認項目2"]
+                },
+                {
+                    "category": "リスク・注意点",
+                    "label": "注意",
+                    "color": "red",
+                    "items": ["リスク項目1"]
+                }
+            ]
+        }
+        \`\`\`
 
 ## 執筆のポイント
-- デザイナーが迷わず作業に入れるよう、具体的かつ論理的に記述すること。
-- 「制作戦略」では、課題をどうデザインで解決するかを言語化すること。
-- 「成果物要件」では、サイズや枚数などの仕様を漏らさず記載すること。
-- 元の情報が不足している場合は、プロの視点で「確認すべき点」として補完するか、仮説を立てて提案すること。
+- **Summary**: ひと目で概要がわかるように簡潔に。
+- **Details**: デザイナーが迷わず作業に入れるよう、具体的かつ論理的に記述すること。Markdownのリスト形式などを活用して読みやすくする。
+- **Actions**:
+    - 「制作チーム TODO」: デザイン・実装において具体的にやるべきこと。
+    - 「クライアント確認」: 情報が不足している点や、承認が必要な点。
+    - 「リスク・注意点」: 納期、法務、技術的な懸念点など。
 `;
 
         // 3. Call Gemini API
