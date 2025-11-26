@@ -20,8 +20,8 @@ export function Hero() {
                 </div>
 
                 <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-[var(--foreground)] mb-6 leading-tight">
-                    依頼の「想い」を、30秒で<br className="hidden md:block" />
-                    <span className="text-[var(--primary-blue)]">“クリエイティブの設計図”</span>に
+                    依頼文を貼るだけで、<br className="hidden md:block" />
+                    <span className="text-[var(--primary-blue)]">プロジェクトの設計図</span>が生まれる。
                 </h1>
 
                 <p className="text-lg md:text-xl text-gray-500 mb-10 leading-relaxed max-w-3xl mx-auto">
