@@ -1,4 +1,4 @@
-# Kouseian - AIデザインブリーフ生成ツール
+# Design-Brief - AIデザインブリーフ生成ツール
 
 デザイン依頼を入力するだけで、AI（Gemini）が完璧なデザインブリーフ（要件定義書）を自動生成するWebアプリケーションです。
 
@@ -26,7 +26,7 @@
 
 ```bash
 git clone [your-repository-url]
-cd kouseian
+cd design-brief
 ```
 
 2. **依存関係のインストール**
@@ -109,7 +109,7 @@ BASIC_AUTH_PASSWORD=your_password
 ## 🏗️ プロジェクト構造
 
 ```
-kouseian/
+design-brief/
 ├── src/
 │   ├── app/
 │   │   ├── api/
