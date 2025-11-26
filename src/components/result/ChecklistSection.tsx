@@ -10,16 +10,17 @@ import { CheckCircle2, AlertTriangle, HelpCircle } from 'lucide-react';
 
 interface ChecklistSectionProps {
     actions: BriefResult['actions'];
+    storageKey?: string;
 }
 
-export function ChecklistSection({ actions }: ChecklistSectionProps) {
+export function ChecklistSection({ actions, storageKey = 'brief_checklist_state' }: ChecklistSectionProps) {
     // State to track checked items. Key is `${categoryIndex}-${itemIndex}`
     const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
     const [isLoaded, setIsLoaded] = useState(false);
 
     // Load from local storage on mount
     useEffect(() => {
-        const saved = localStorage.getItem('brief_checklist_state');
+        const saved = localStorage.getItem(storageKey);
         if (saved) {
             try {
                 setCheckedItems(new Set(JSON.parse(saved)));
@@ -28,14 +29,14 @@ export function ChecklistSection({ actions }: ChecklistSectionProps) {
             }
         }
         setIsLoaded(true);
-    }, []);
+    }, [storageKey]);
 
     // Save to local storage whenever state changes
     useEffect(() => {
         if (isLoaded) {
-            localStorage.setItem('brief_checklist_state', JSON.stringify(Array.from(checkedItems)));
+            localStorage.setItem(storageKey, JSON.stringify(Array.from(checkedItems)));
         }
-    }, [checkedItems, isLoaded]);
+    }, [checkedItems, isLoaded, storageKey]);
 
     const toggleItem = (id: string) => {
         const newSet = new Set(checkedItems);

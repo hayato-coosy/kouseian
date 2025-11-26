@@ -3,6 +3,7 @@
 import { ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { CopyButtons } from './CopyButtons';
+import { ShareButton } from './ShareButton';
 import { BriefResult } from '@/types/brief';
 
 interface FixedToolbarProps {
@@ -25,7 +26,8 @@ export function FixedToolbar({ data }: FixedToolbarProps) {
                 >
                     <ArrowUp className="w-5 h-5" />
                 </Button>
-                <div className="flex-1 flex justify-end">
+                <div className="flex-1 flex justify-end gap-2">
+                    <ShareButton data={data} variant="outline" className="h-10" />
                     <CopyButtons data={data} />
                 </div>
             </div>

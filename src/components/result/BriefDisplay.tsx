@@ -8,9 +8,10 @@ import { AnchorNav } from './AnchorNav';
 
 interface BriefDisplayProps {
     data: BriefResult;
+    storageKey?: string;
 }
 
-export function BriefDisplay({ data }: BriefDisplayProps) {
+export function BriefDisplay({ data, storageKey }: BriefDisplayProps) {
     return (
         <div className="flex flex-col lg:flex-row gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Sidebar Navigation (PC only) */}
@@ -20,7 +21,7 @@ export function BriefDisplay({ data }: BriefDisplayProps) {
             <div className="flex-1 space-y-12 min-w-0">
                 <SummaryCard summary={data.summary} />
                 <DetailsSection details={data.details} />
-                <ChecklistSection actions={data.actions} />
+                <ChecklistSection actions={data.actions} storageKey={storageKey} />
             </div>
         </div>
     );

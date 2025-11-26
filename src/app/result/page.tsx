@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { BriefDisplay } from '@/components/result/BriefDisplay';
 import { Button } from '@/components/ui/Button';
 import { ArrowLeft } from 'lucide-react';
-import { BriefResult } from '@/types/brief';
 import { FixedToolbar } from '@/components/result/FixedToolbar';
 import { CopyButtons } from '@/components/result/CopyButtons';
+import { ShareButton } from '@/components/result/ShareButton';
+import { BriefResult } from '@/types/brief';
 
 export default function ResultPage() {
     const router = useRouter();
@@ -49,7 +50,8 @@ export default function ResultPage() {
                     </Button>
 
                     {/* PC only copy buttons */}
-                    <div className="hidden lg:block">
+                    <div className="hidden lg:flex items-center gap-2">
+                        <ShareButton data={data} variant="outline" />
                         <CopyButtons data={data} />
                     </div>
                 </div>
@@ -63,11 +65,11 @@ export default function ResultPage() {
                     </p>
                 </div>
 
-                <BriefDisplay data={data} />
+                <BriefDisplay data={data} storageKey="brief_local" />
 
                 <div className="mt-12 text-center text-xs text-gray-400 dark:text-gray-500 print:hidden">
                     この画面に表示されている内容はブラウザ内でのみ保持され、サーバー側には保存されません。<br />
-                    必要な内容は、Notionなどの正式なドキュメントにコピーして保管してください。
+                    「保存して共有」ボタンを押すと、サーバーに保存され共有リンクが発行されます。
                 </div>
             </div>
 
