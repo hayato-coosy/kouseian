@@ -59,6 +59,10 @@ export type BriefResult = {
         label: string;
         color: 'blue' | 'orange' | 'red';
         items: string[];
+        subsections?: {
+            title: string;
+            items: string[];
+        }[];
     }[];
 };
 

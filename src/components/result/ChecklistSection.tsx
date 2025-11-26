@@ -89,18 +89,45 @@ export function ChecklistSection({ actions }: ChecklistSectionProps) {
                             </div>
                         </div>
 
-                        <div className="space-y-1 pl-9">
-                            {action.items.map((item, itemIndex) => {
-                                const id = `${categoryIndex}-${itemIndex}`;
-                                return (
-                                    <ChecklistItem
-                                        key={id}
-                                        label={item}
-                                        checked={checkedItems.has(id)}
-                                        onToggle={() => toggleItem(id)}
-                                    />
-                                );
-                            })}
+                        <div className="space-y-4 pl-9">
+                            {/* Direct items */}
+                            {action.items.length > 0 && (
+                                <div className="space-y-1">
+                                    {action.items.map((item, itemIndex) => {
+                                        const id = `${categoryIndex}-direct-${itemIndex}`;
+                                        return (
+                                            <ChecklistItem
+                                                key={id}
+                                                label={item}
+                                                checked={checkedItems.has(id)}
+                                                onToggle={() => toggleItem(id)}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            )}
+
+                            {/* Subsections */}
+                            {action.subsections?.map((subsection, subIndex) => (
+                                <div key={subIndex} className="space-y-2">
+                                    <h4 className="font-semibold text-gray-700 dark:text-gray-300 text-sm">
+                                        {subsection.title}
+                                    </h4>
+                                    <div className="space-y-1">
+                                        {subsection.items.map((item, itemIndex) => {
+                                            const id = `${categoryIndex}-sub${subIndex}-${itemIndex}`;
+                                            return (
+                                                <ChecklistItem
+                                                    key={id}
+                                                    label={item}
+                                                    checked={checkedItems.has(id)}
+                                                    onToggle={() => toggleItem(id)}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </Card>
                 ))}
