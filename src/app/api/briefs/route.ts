@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
         // Save to Supabase
         const { error } = await supabase
-            .from('briefs')
+            .from('design-brief')
             .insert({
                 id,
                 data,

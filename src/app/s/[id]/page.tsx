@@ -10,7 +10,7 @@ export default async function SharedBriefPage({ params }: { params: Promise<{ id
     const { id } = await params;
 
     const { data: brief, error } = await supabase
-        .from('briefs')
+        .from('design-brief')
         .select('data')
         .eq('id', id)
         .single();

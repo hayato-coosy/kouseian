@@ -15,7 +15,7 @@ export async function GET(
 
         // Get from Supabase
         const { data: brief, error } = await supabase
-            .from('briefs')
+            .from('design-brief')
             .select('data')
             .eq('id', id)
             .single();
