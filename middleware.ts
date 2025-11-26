@@ -1,12 +1,31 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-
-export function middleware(request: NextRequest) {
-    // Basic authentication removed – always allow the request
-    return NextResponse.next();
-}
+import { NextRequest, NextResponse } from 'next/server';
 
 export const config = {
-    // Apply to all routes
-    matcher: ['/:path*'],
+  matcher: ['/:path*'],
 };
+
+export function middleware(req: NextRequest) {
+  const basicAuth = req.headers.get('authorization');
+  const url = req.nextUrl;
+
+  if (basicAuth) {
+    const authValue = basicAuth.split(' ')[1];
+    const [user, pwd] = atob(authValue).split(':');
+
+    if (
+      user === process.env.BASIC_AUTH_USER &&
+      pwd === process.env.BASIC_AUTH_PASSWORD
+    ) {
+      return NextResponse.next();
+    }
+  }
+
+  url.pathname = '/api/auth';
+
+  return new NextResponse('Auth Required.', {
+    status: 401,
+    headers: {
+      'WWW-Authenticate': 'Basic realm="Secure Area"',
+    },
+  });
+}
