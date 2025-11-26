@@ -3,7 +3,8 @@
 import { BriefResult } from '@/types/brief';
 import { SummaryCard } from './SummaryCard';
 import { DetailsSection } from './DetailsSection';
-import { ActionList } from './ActionList';
+import { ChecklistSection } from './ChecklistSection';
+import { AnchorNav } from './AnchorNav';
 
 interface BriefDisplayProps {
     data: BriefResult;
@@ -11,18 +12,16 @@ interface BriefDisplayProps {
 
 export function BriefDisplay({ data }: BriefDisplayProps) {
     return (
-        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <SummaryCard summary={data.summary} />
+        <div className="flex flex-col lg:flex-row gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Sidebar Navigation (PC only) */}
+            <AnchorNav />
 
-            <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-[var(--foreground)] flex items-center gap-2">
-                    <span className="w-1 h-8 bg-[var(--primary-blue)] rounded-full"></span>
-                    Project Details
-                </h2>
+            {/* Main Content */}
+            <div className="flex-1 space-y-12 min-w-0">
+                <SummaryCard summary={data.summary} />
                 <DetailsSection details={data.details} />
+                <ChecklistSection actions={data.actions} />
             </div>
-
-            <ActionList actions={data.actions} />
         </div>
     );
 }

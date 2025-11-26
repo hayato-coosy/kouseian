@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BriefDisplay } from '@/components/result/BriefDisplay';
 import { Button } from '@/components/ui/Button';
-import { ArrowLeft, Copy, Check } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { BriefResult } from '@/types/brief';
+import { FixedToolbar } from '@/components/result/FixedToolbar';
+import { CopyButtons } from '@/components/result/CopyButtons';
 
 export default function ResultPage() {
     const router = useRouter();
     const [data, setData] = useState<BriefResult | null>(null);
-    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         const storedData = sessionStorage.getItem('briefResult');
@@ -26,61 +27,6 @@ export default function ResultPage() {
         }
     }, [router]);
 
-    const copyToClipboard = () => {
-        if (!data) return;
-
-        const text = `
-# ${data.summary.title}
-
-## Summary
-- Client: ${data.summary.client}
-- Type: ${data.summary.type}
-- Deadline: ${data.summary.deadline}
-- Overview: ${data.summary.overview}
-
-## Details
-### Background
-${data.details.background}
-
-### Problem
-${data.details.problem}
-
-### Goal
-${data.details.goal}
-
-### Elements
-${data.details.elements}
-
-### Target
-${data.details.target}
-
-### Channel
-${data.details.channel}
-
-### KPI
-${data.details.kpi}
-
-### Tone & Manner
-${data.details.tone}
-
-### References
-${data.details.references}
-
-### NG Examples
-${data.details.ng_examples}
-
-### Constraints
-${data.details.constraints}
-
-## Next Actions
-${data.actions.map(a => `### ${a.category}\n${a.items.map(i => `- ${i}`).join('\n')}`).join('\n\n')}
-        `;
-
-        navigator.clipboard.writeText(text);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
-
     if (!data) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
@@ -93,7 +39,7 @@ ${data.actions.map(a => `### ${a.category}\n${a.items.map(i => `- ${i}`).join('\
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-32 lg:pb-20">
             {/* Header / Nav */}
             <div className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-5xl">
@@ -101,13 +47,11 @@ ${data.actions.map(a => `### ${a.category}\n${a.items.map(i => `- ${i}`).join('\
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         トップに戻る
                     </Button>
-                    <Button
-                        onClick={copyToClipboard}
-                        className="bg-[var(--primary-blue)] text-white hover:opacity-90 rounded-full px-6 shadow-md"
-                    >
-                        {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                        {copied ? 'コピーしました' : '全体をコピー'}
-                    </Button>
+
+                    {/* PC only copy buttons */}
+                    <div className="hidden lg:block">
+                        <CopyButtons data={data} />
+                    </div>
                 </div>
             </div>
 
@@ -126,6 +70,8 @@ ${data.actions.map(a => `### ${a.category}\n${a.items.map(i => `- ${i}`).join('\
                     必要な内容は、Notionなどの正式なドキュメントにコピーして保管してください。
                 </div>
             </div>
+
+            <FixedToolbar data={data} />
         </div>
     );
 }
