@@ -33,7 +33,7 @@ export default async function SharedBriefPage({ params }: { params: Promise<{ id
                         </Button>
                     </Link>
                     <div className="text-sm font-medium text-gray-500">
-                        Shared View
+                        共有ビュー
                     </div>
                 </div>
             </div>

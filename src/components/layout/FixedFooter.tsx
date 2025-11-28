@@ -13,7 +13,7 @@ export function FixedFooter() {
                 <div className="container mx-auto flex items-center justify-center gap-2 text-xs md:text-sm text-gray-500">
                     <ShieldAlert className="w-4 h-4" />
                     <span>
-                        入力データはサーバーに保存されません。
+                        原則、入力データはサーバーに保存されません。
                     </span>
                     <button
                         onClick={() => setIsModalOpen(true)}

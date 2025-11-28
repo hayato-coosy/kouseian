@@ -16,7 +16,9 @@ export default function AboutPage() {
                     <div className="bg-blue-50 p-6 rounded-lg border border-blue-100 dark:bg-blue-900/20 dark:border-blue-900/50">
                         <h3 className="font-bold text-blue-900 mb-2 dark:text-blue-400">データ保護とプライバシー</h3>
                         <p className="text-sm text-blue-800 dark:text-blue-300">
-                            アプリケーション側では、入力されたテキストや生成結果の本文をデータベースに保存していません。
+                            原則として、入力されたテキストや生成結果の本文をデータベースに保存していません。
+                            ただし、「共有機能」を使用した場合は、共有用のURLを発行するために、生成されたデザインブリーフの内容がデータベース（Supabase）に保存されます。
+                            共有機能を使用しない限り、データが永続化されることはありません。
                             ログには、リクエストの成功／失敗や処理時間などのメタ情報のみを記録しており、
                             入力された具体的な内容は記録しない設計としています。
                         </p>

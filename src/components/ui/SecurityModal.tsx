@@ -55,10 +55,10 @@ export function SecurityModal({ isOpen, onClose }: SecurityModalProps) {
                             <ServerOff className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <h4 className="font-bold text-gray-900 dark:text-gray-50 mb-1 text-sm">サーバーに保存しません</h4>
+                            <h4 className="font-bold text-gray-900 dark:text-gray-50 mb-1 text-sm">原則、サーバーに保存しません</h4>
                             <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                                入力されたテキストや生成されたブリーフは、サーバー（データベース）に一切保存されません。
-                                ブラウザを閉じるとデータは消去されます。
+                                原則として、入力されたテキストや生成されたブリーフはサーバー（データベース）に保存されません。
+                                ただし、「共有機能」を使用した場合は、共有用URL発行のためにデータがデータベース（Supabase）に保存されます。
                             </p>
                         </div>
                     </div>
