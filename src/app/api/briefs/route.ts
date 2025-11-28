@@ -4,6 +4,15 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(request: Request) {
     try {
+        // Debug: Check if Env vars are loaded
+        if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+            console.error('Missing Supabase Environment Variables');
+            return NextResponse.json({
+                error: 'Configuration Error',
+                details: 'Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY'
+            }, { status: 500 });
+        }
+
         const body = await request.json();
         const data: BriefResult = body;
 
@@ -25,12 +34,20 @@ export async function POST(request: Request) {
 
         if (error) {
             console.error('Supabase error:', error);
-            return NextResponse.json({ error: 'Failed to save' }, { status: 500 });
+            return NextResponse.json({
+                error: 'Failed to save to Supabase',
+                message: error.message,
+                details: error
+            }, { status: 500 });
         }
 
         return NextResponse.json({ id });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Failed to save brief:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({
+            error: 'Internal Server Error',
+            message: error.message || 'Unknown error',
+            details: error
+        }, { status: 500 });
     }
 }
