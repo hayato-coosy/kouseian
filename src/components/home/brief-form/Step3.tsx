@@ -35,7 +35,7 @@ export function Step3({ register, watch, setValue }: Step3Props) {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-12">
             {/* Header removed as it is handled by AccordionTrigger in parent */}
 
             {/* Target User */}

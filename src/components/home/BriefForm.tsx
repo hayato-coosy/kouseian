@@ -109,7 +109,7 @@ export function BriefForm() {
                         </button>
                     </div>
 
-                    <form onSubmit={handleSubmit(onSubmit)} className="p-6 md:p-10">
+                    <form onSubmit={handleSubmit(onSubmit)} className="px-6 pb-6 pt-20 md:px-10 md:pb-10 md:pt-20">
 
                         <Accordion className="space-y-8">
                             {/* Step 1 */}
@@ -120,9 +120,9 @@ export function BriefForm() {
                                     className="hover:no-underline py-0 mb-4"
                                 >
                                     <div className="flex items-center gap-2 w-full">
-                                        <span className="bg-[var(--primary-blue)] text-white text-xs font-bold px-2 py-1 rounded-full">STEP 1</span>
-                                        <h2 className="text-xl font-semibold text-[var(--foreground)]">依頼内容を入力</h2>
-                                        <span className="ml-auto text-xs text-gray-400 font-normal">
+                                        <span className="bg-[var(--primary-blue)] text-white text-xs font-bold px-2 py-1 rounded-full flex-shrink-0">STEP 1</span>
+                                        <h2 className="text-lg md:text-xl font-semibold text-[var(--foreground)]">依頼内容を入力</h2>
+                                        <span className="ml-auto text-xs text-gray-400 font-normal flex-shrink-0">
                                             {openItems.includes('step1') ? '閉じる' : '開く'}
                                         </span>
                                     </div>
@@ -142,9 +142,9 @@ export function BriefForm() {
                                     className="hover:no-underline py-0 mb-4"
                                 >
                                     <div className="flex items-center gap-2 w-full">
-                                        <span className="bg-[var(--primary-blue)] text-white text-xs font-bold px-2 py-1 rounded-full">STEP 2</span>
-                                        <h2 className="text-xl font-semibold text-[var(--foreground)]">基本情報を整理</h2>
-                                        <span className="ml-auto text-xs text-gray-400 font-normal">
+                                        <span className="bg-[var(--primary-blue)] text-white text-xs font-bold px-2 py-1 rounded-full flex-shrink-0">STEP 2</span>
+                                        <h2 className="text-lg md:text-xl font-semibold text-[var(--foreground)]">基本情報を整理</h2>
+                                        <span className="ml-auto text-xs text-gray-400 font-normal flex-shrink-0">
                                             {openItems.includes('step2') ? '閉じる' : '開く'}
                                         </span>
                                     </div>

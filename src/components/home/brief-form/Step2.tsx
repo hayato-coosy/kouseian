@@ -15,7 +15,7 @@ export function Step2({ register, errors, watch }: Step2Props) {
     const deliverableType = watch('deliverable_type');
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-12">
             {/* Header removed as it is handled by AccordionTrigger in parent */}
 
             <div className="grid md:grid-cols-2 gap-6">
