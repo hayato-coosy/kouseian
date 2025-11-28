@@ -5,11 +5,14 @@ import { supabase } from '@/lib/supabase';
 export async function POST(request: Request) {
     try {
         // Debug: Check if Env vars are loaded
-        if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+        if (!supabaseUrl || !supabaseKey) {
             console.error('Missing Supabase Environment Variables');
             return NextResponse.json({
                 error: 'Configuration Error',
-                details: 'Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY'
+                details: 'Missing SUPABASE_URL/SUPABASE_ANON_KEY or their NEXT_PUBLIC_ counterparts'
             }, { status: 500 });
         }
 
