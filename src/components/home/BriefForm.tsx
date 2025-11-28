@@ -164,10 +164,10 @@ export function BriefForm() {
                                     className="hover:no-underline py-0 mb-4"
                                 >
                                     <div className="flex items-center gap-2 w-full">
-                                        <span className="bg-[var(--primary-blue)] text-white text-xs font-bold px-2 py-1 rounded-full">STEP 3</span>
-                                        <h2 className="text-xl font-semibold text-[var(--foreground)]">詳細情報（任意）</h2>
-                                        <span className="ml-2 text-xs font-normal text-gray-500 border border-gray-300 px-2 py-0.5 rounded-full">任意</span>
-                                        <span className="ml-auto text-xs text-gray-400 font-normal">
+                                        <span className="bg-[var(--primary-blue)] text-white text-xs font-bold px-2 py-1 rounded-full flex-shrink-0">STEP 3</span>
+                                        <h2 className="text-lg md:text-xl font-semibold text-[var(--foreground)]">詳細情報</h2>
+                                        <span className="ml-2 text-xs font-normal text-gray-500 border border-gray-300 px-2 py-0.5 rounded-full flex-shrink-0">任意</span>
+                                        <span className="ml-auto text-xs text-gray-400 font-normal flex-shrink-0">
                                             {openItems.includes('step3') ? '閉じる' : '開く'}
                                         </span>
                                     </div>
